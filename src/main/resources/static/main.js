@@ -7,6 +7,7 @@ var messageForm = document.querySelector('.message-box');
 var messageInput = document.querySelector('#message-input');
 var messageArea = document.querySelector('#messageDisplay');
 var connectingElement = document.querySelector('.connecting');
+var memberlist = document.querySelector('#members')
 
 var stompClient = null;
 var username = null;
@@ -30,13 +31,15 @@ function connect(event) {
 
 function onConnected() {
     stompClient.subscribe('/topic/public', onMessageReceived);
-
+    stompClient.subscribe('/topic/public', addMemberToList);
     stompClient.send("/app/chat.addUser",
         {},
         JSON.stringify({sender: username, type: 'JOIN'})
     )
 
     connectingElement.classList.add('hidden');
+
+
 }
 
 
@@ -66,31 +69,34 @@ function onMessageReceived(payload) {
 
     var messageElement = document.createElement('li');
 
-    if(message.type === 'JOIN') {
-        messageElement.classList.add('event-message');
-        message.content = message.sender + ' joined!';
-    } else if (message.type === 'LEAVE') {
-        messageElement.classList.add('event-message');
-        message.content = message.sender + ' has left the building!';
-    } else {
+    if(message.type == 'CHAT') {
         messageElement.classList.add('chat-message');
 
-        var usernameElement = document.createElement('span');
+
         var usernameText = document.createTextNode(message.sender + ': ');
-        usernameElement.appendChild(usernameText);
-        messageElement.appendChild(usernameElement);
+        messageElement.appendChild(usernameText);
+
+
+        var messageText = document.createTextNode(message.content);
+        messageElement.appendChild(messageText);
+
+        messageArea.appendChild(messageElement);
+        messageArea.scrollTop = messageArea.scrollHeight;
     }
-
-    var textElement = document.createElement('p');
-    var messageText = document.createTextNode(message.content);
-    textElement.appendChild(messageText);
-    messageElement.appendChild(usernameElement);
-
-    messageElement.appendChild(textElement);
-
-    messageArea.appendChild(messageElement);
-    messageArea.scrollTop = messageArea.scrollHeight;
 }
+
+function addMemberToList(payload){
+    var messageSender = JSON.parse(payload.body);
+
+    if(messageSender.type == 'JOIN'){
+        var memberListText = document.createElement('li');
+        var memberName = document.createTextNode(messageSender.sender);
+        memberListText.appendChild(memberName);
+        memberlist.appendChild(memberListText);
+
+    }
+}
+
 
 
 usernameForm.addEventListener('submit', connect, true);
