@@ -7,7 +7,7 @@ import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     /*
      *  STOMP -> Simple Text Oriented Messaging Protocol
@@ -26,10 +26,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
      *  And, the second line defines that the messages whose destination starts with “/topic”
      *  should be routed to the message broker. Message broker broadcasts messages to all
      *  the connected clients who are subscribed to a particular topic.
-    */
+     */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
         registry.enableSimpleBroker("/topic");
     }
 }
+
